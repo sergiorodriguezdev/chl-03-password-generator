@@ -92,6 +92,7 @@ function generatePassword() {
   for (var i = 0; i < passwordLength; i++) {
     randomPassword += generateRandomCharacter();
   }
+  // Need to commit again -- ignore
 
   // Validate password based on character types selected
   // randomPassword = validatePassword(randomPassword);
