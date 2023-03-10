@@ -29,7 +29,7 @@ function writePassword() {
 
   // Unhide and enable Copy to Clipboard button
   copyBtn.setAttribute("style", "display:inline-block;");
-  copyBtn.disabled = false;
+  copyBtn.disabled = password.length === 0;
 }
 
 // Add event listener to generate button
@@ -48,14 +48,7 @@ function copyPasswordToClipboard() {
 
 function generatePassword() {
   var randomPassword = "";
-  selectedTypes = []; // Remove previously selected options
-  
-  // Reset character counters
-  specialCounter = 0;
-  upperCaseCounter = 0;
-  lowerCaseCounter = 0;
-  numericCounter = 0;
-  
+    
   var passwordLength = window.prompt("Enter the desired password length. It should be a number between 8 and 128 inclusive: ");
 
   // If user cancels prompt, then return to web page
@@ -83,19 +76,27 @@ function generatePassword() {
     } while(isNaN(passwordLength) || !Number.isInteger(passwordLength) || passwordLength < 8 || passwordLength > 128); // Same conditional statement as above
   };
 
+  selectedTypes = []; // Remove previously selected options
+  
   do {
     promptTypes();
   } while(selectedTypes.length === 0); // If no types are selected, run through prompts again
 
-  // Generate random characters and append to string (randomPassword)
-  // Length entered by user will determine number of times to run through loop
-  for (var i = 0; i < passwordLength; i++) {
-    randomPassword += generateRandomCharacter();
-  }
-  // Need to commit again -- ignore
+  do {
+    randomPassword = "";
+    // Reset character counters
+    specialCounter = 0;
+    upperCaseCounter = 0;
+    lowerCaseCounter = 0;
+    numericCounter = 0;
 
-  // Validate password based on character types selected
-  // randomPassword = validatePassword(randomPassword);
+    // Generate random characters and append to string (randomPassword)
+    // Length entered by user will determine number of times to run through loop
+    for (var i = 0; i < passwordLength; i++) {
+      randomPassword += generateRandomCharacter();
+    }
+  
+  } while (!validatePassword(randomPassword, passwordLength)); // Keep generating password as long as validation step fails
 
   // Return validated password
   return randomPassword;
@@ -166,35 +167,49 @@ function generateRandomCharacter() {
     return specialChars[randomSelection];
   }
 
-  // If "error" is returned, then there's something wrong with code upstream
-  return "error";
+  // If empty string is returned, then there's something wrong with code upstream
+  console.log("Empty string returned as random character, there's an error with the code");
+  return "";
 }
 
 // Validate the password has been generated correctly based on the criteria specified by user
+// Check the length of the password string matches the desired length entered by user
 // Check that the password contains at least 1 character for each character type selected
-// If a character for a type selected is not found in the generated password, replace 10% of the string with that type of characters
-function validatePassword(generatedPassword) {
+// Return true if password validation passes
+function validatePassword(generatedPassword, passwordLength) {
 
   // If the length of the password generated is not the same as the length specified by user, abort and inform user
   // This will only happen if code upstream is buggy
   if (generatedPassword.length !== passwordLength) {
-    window.alert("Something is wrong with the password that has been generated. Please try again\nIf issue persists, contact the developer.");
-    return "";
+    console.log("password validation failed - password length doesn't match length entered by user");
+    return false;
   }
 
-  // Iterate through selected types
-  for (var i = 0; i < selectedTypes.length; i++) {
-    if (selectedTypes[i] === lowerCase && lowerCaseCounter === 0) {
-      // If no lower case characters were included in generated password, then replace 10% of string with lower case chars
-    } else if (selectedTypes[i] === upperCase && upperCaseCounter === 0) {
-      // If no upper case characters were included in generated password, then replace 10% of string with upper case chars
-    } else if (selectedTypes[i] === numeric && numericCounter === 0) {
-      // If no numers were included in generated password, then replace 10% of string with numbers
-    } else if (selectedTypes[i] === special && specialCounter === 0) {
-      // If no special characters were included in generated password, then replace 10% of string with special chars
-    }
+  // If selected types includes the lower case option and the corresponding counter is 0, then validation fails
+  if (selectedTypes.includes(lowerCase) && lowerCaseCounter === 0) {
+    console.log("password validation failed - " + lowerCase + " option selected, 0 lower case characters included in password.");
+    return false;
+  }
+  
+  // If selected types includes the upper case option and the corresponding counter is 0, then validation fails
+  if (selectedTypes.includes(upperCase) && upperCaseCounter === 0) {
+    console.log("password validation failed - " + upperCase + " option selected, 0 upper case characters included in password.");
+    return false;
   }
 
+  // If selected types includes the numeric option and the corresponding counter is 0, then validation fails
+  if (selectedTypes.includes(numeric) && numericCounter === 0) {
+    console.log("password validation failed - " + numeric + " option selected, 0 numbers included in password.");
+    return false;
+  }
 
-  return generatedPassword;
+  // If selected types includes the special chars option and the corresponding counter is 0, then validation fails
+  if (selectedTypes.includes(special) && specialCounter === 0) {
+    console.log("password validation failed - " + special + " option selected, 0 special characters included in password.");
+    return false;
+  }
+
+  // Only return true if any of the checks above fail, meaning password validation was successful
+  console.log("password validation passed");
+  return true;
 }
