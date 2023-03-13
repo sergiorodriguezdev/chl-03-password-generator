@@ -1,4 +1,5 @@
 // Sets of characters
+// List of special characters collected from here: https://owasp.org/www-community/password-special-characters 
 const specialChars = " !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~";
 const upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
@@ -32,10 +33,7 @@ function writePassword() {
   copyBtn.disabled = password.length === 0;
 }
 
-// Add event listener to generate button
-generateBtn.addEventListener("click", writePassword);
-copyBtn.addEventListener("click", copyPasswordToClipboard);
-
+// Copy generated password to clipboard when button is clicked
 function copyPasswordToClipboard() {
   var passwordText = document.querySelector("#password");
   
@@ -46,6 +44,12 @@ function copyPasswordToClipboard() {
   navigator.clipboard.writeText(passwordText.value);
 }
 
+// Add event listener to generate button
+generateBtn.addEventListener("click", writePassword);
+copyBtn.addEventListener("click", copyPasswordToClipboard);
+
+// Password generation prompts and logic
+// Returns the generated password, or empty string if user cancels out of prompt
 function generatePassword() {
   var randomPassword = "";
     
@@ -83,7 +87,9 @@ function generatePassword() {
   } while(selectedTypes.length === 0); // If no types are selected, run through prompts again
 
   do {
+    // Start with an empty password string
     randomPassword = "";
+    
     // Reset character counters
     specialCounter = 0;
     upperCaseCounter = 0;
@@ -136,7 +142,7 @@ function promptTypes() {
 // Selected character will be returned
 function generateRandomCharacter() {
 
-  // Pick a random type from tracking array
+  // Pick a type from tracking array randomly
   var randomSelection = Math.floor(Math.random() * selectedTypes.length);
 
   // If type selected is lower case, pick a random lower case char
@@ -145,31 +151,29 @@ function generateRandomCharacter() {
     randomSelection = Math.floor(Math.random() * lowerCaseChars.length);
     return lowerCaseChars[randomSelection];
   }
-
   // If type selected is lower case, pick a random upper case char
-  if(selectedTypes[randomSelection] === upperCase) {
+  else if(selectedTypes[randomSelection] === upperCase) {
     upperCaseCounter++;
     randomSelection = Math.floor(Math.random() * upperCaseChars.length);
     return upperCaseChars[randomSelection];
   }
-
   // If type selected is lower case, pick a random number
-  if(selectedTypes[randomSelection] === numeric) {
+  else if(selectedTypes[randomSelection] === numeric) {
     numericCounter++;
     randomSelection = Math.floor(Math.random() * numericChars.length);
-    return numericChars[randomSelection];
+    return numericChars[randomSelection]; // I guess randomSelection can be returned here rather than using a string
   }
-
   // If type selected is lower case, pick a random special char
-  if(selectedTypes[randomSelection] === special) {
+  else if(selectedTypes[randomSelection] === special) {
     specialCounter++;
     randomSelection = Math.floor(Math.random() * specialChars.length);
     return specialChars[randomSelection];
   }
-
   // If empty string is returned, then there's something wrong with code upstream
-  console.log("Empty string returned as random character, there's an error with the code");
-  return "";
+  else {
+    console.log("Empty string returned as random character, there's an error with the code");
+    return "";
+  }
 }
 
 // Validate the password has been generated correctly based on the criteria specified by user
@@ -184,27 +188,23 @@ function validatePassword(generatedPassword, passwordLength) {
     console.log("password validation failed - password length doesn't match length entered by user");
     return false;
   }
-
   // If selected types includes the lower case option and the corresponding counter is 0, then validation fails
-  if (selectedTypes.includes(lowerCase) && lowerCaseCounter === 0) {
+  else if (selectedTypes.includes(lowerCase) && lowerCaseCounter === 0) {
     console.log("password validation failed - " + lowerCase + " option selected, 0 lower case characters included in password.");
     return false;
   }
-  
   // If selected types includes the upper case option and the corresponding counter is 0, then validation fails
-  if (selectedTypes.includes(upperCase) && upperCaseCounter === 0) {
+  else if (selectedTypes.includes(upperCase) && upperCaseCounter === 0) {
     console.log("password validation failed - " + upperCase + " option selected, 0 upper case characters included in password.");
     return false;
   }
-
   // If selected types includes the numeric option and the corresponding counter is 0, then validation fails
-  if (selectedTypes.includes(numeric) && numericCounter === 0) {
+  else if (selectedTypes.includes(numeric) && numericCounter === 0) {
     console.log("password validation failed - " + numeric + " option selected, 0 numbers included in password.");
     return false;
   }
-
   // If selected types includes the special chars option and the corresponding counter is 0, then validation fails
-  if (selectedTypes.includes(special) && specialCounter === 0) {
+  else if (selectedTypes.includes(special) && specialCounter === 0) {
     console.log("password validation failed - " + special + " option selected, 0 special characters included in password.");
     return false;
   }
